@@ -1,0 +1,16 @@
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSConnector
+metadata:
+  name: coredns
+  namespace: kube-system
+spec:
+  waitForUpdateTimeout: 13
+  corednsCM: 
+    name: coredns
+    corefileKey: Corefile
+  corednsDeployment:
+    name: coredns
+    type: Deployment
+  corednsZoneEnaledPlugins:
+  - errors
+  - log

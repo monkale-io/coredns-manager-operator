@@ -1,0 +1,282 @@
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: www-a-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "www"
+    value: "10.100.100.10"
+    type: "A"
+    setPTR: true
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: mail-a-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "mail"
+    value: "10.100.100.20"
+    type: "A"
+    setPTR: true
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: ns1-a-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "ns1"
+    value: "192.168.1.1"
+    type: "A"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: ns2-a-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "ns2"
+    value: "192.168.1.2"
+    type: "A"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: ftp-cname-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "ftp"
+    value: "www.market.example.local."
+    type: "CNAME"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: mail-mx-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "@"
+    value: "10 mail.market.example.local."
+    type: "MX"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: spf-txt-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "@"
+    value: "v=spf1 include:example.com ~all"
+    type: "TXT"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: ns1-aaaa-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "ns1"
+    value: "2001:db8::2"
+    type: "AAAA"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: srv-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "_sip._tcp"
+    value: "10 5 5060 sipserver.example.com."
+    type: "SRV"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: ptr-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "@"
+    value: "ptr.market.example.local."
+    type: "PTR"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: naptr-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "@"
+    value: "100 50 \"u\" \"E2U+sip\" \"!^.*$!sip:info@market.example.local!i\" ."
+    type: "NAPTR"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: dnskey-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "@"
+    value: "257 3 8 AwEAAaKdjGVkvFjdLv...5A5t5y7yQ8r"
+    type: "DNSKEY"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: rrsig-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "@"
+    value: "A 8 3 86400 20240601000000 20240501000000 12345 market.example.local. b1N2...=="
+    type: "RRSIG"
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: hinfo-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "@"
+    value: "Intel x86_64"
+    type: "HINFO"
+  dnsZoneRef:
+    name: "market-example-zone"

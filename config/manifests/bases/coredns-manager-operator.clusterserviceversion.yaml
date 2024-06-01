@@ -1,0 +1,63 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: coredns-manager-operator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: DNSConnector is the Schema for the dnsconnectors API
+      displayName: DNSConnector
+      kind: DNSConnector
+      name: dnsconnectors.monkale.monkale.io
+      version: v1alpha1
+    - description: DNSRecord is the Schema for the dnsrecords API
+      displayName: DNSRecord
+      kind: DNSRecord
+      name: dnsrecords.monkale.monkale.io
+      version: v1alpha1
+    - description: DNSZone is the Schema for the dnszones API
+      displayName: DNSZone
+      kind: DNSZone
+      name: dnszones.monkale.monkale.io
+      version: v1alpha1
+  description: The CoreDNS Manager Operator enables Kubernetes to function as a standalone
+    DNS server, ideal for offline or home lab environments. It eliminates the need
+    for additional DNS software like named or dnsmasq and supports a GitOps approach
+    for managing DNS configurations.
+  displayName: coredns-manager-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - coredns manager
+  - coredns operator
+  - dnsrecord
+  - dnszone
+  - internal dns
+  - dns gitops
+  links:
+  - name: Coredns Manager Operator
+    url: https://coredns-manager-operator.domain
+  maturity: alpha
+  provider:
+    name: monkale.io
+    url: https://github.com/monkale-io/coredns-manager-operator
+  version: 0.0.0

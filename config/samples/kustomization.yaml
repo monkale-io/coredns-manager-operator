@@ -1,0 +1,5 @@
+resources:
+- monkale_v1alpha1_dnszone.yaml
+- monkale_v1alpha1_dnsrecord.yaml
+- monkale_v1alpha1_dnsconnector.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples
