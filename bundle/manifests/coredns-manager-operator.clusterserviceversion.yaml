@@ -1,0 +1,616 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSConnector",
+          "metadata": {
+            "name": "coredns",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "corednsCM": {
+              "corefileKey": "Corefile",
+              "name": "coredns"
+            },
+            "corednsDeployment": {
+              "name": "coredns",
+              "type": "Deployment"
+            },
+            "corednsZoneEnaledPlugins": [
+              "errors",
+              "log"
+            ],
+            "waitForUpdateTimeout": 13
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "dnskey-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "@",
+              "type": "DNSKEY",
+              "value": "257 3 8 AwEAAaKdjGVkvFjdLv...5A5t5y7yQ8r"
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "ftp-cname-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "ftp",
+              "type": "CNAME",
+              "value": "www.market.example.local."
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "hinfo-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "@",
+              "type": "HINFO",
+              "value": "Intel x86_64"
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "mail-a-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "mail",
+              "setPTR": true,
+              "type": "A",
+              "value": "10.100.100.20"
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "mail-mx-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "@",
+              "type": "MX",
+              "value": "10 mail.market.example.local."
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "naptr-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "@",
+              "type": "NAPTR",
+              "value": "100 50 \"u\" \"E2U+sip\" \"!^.*$!sip:info@market.example.local!i\" ."
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "ns1-a-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "ns1",
+              "type": "A",
+              "value": "192.168.1.1"
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "ns1-aaaa-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "ns1",
+              "type": "AAAA",
+              "value": "2001:db8::2"
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "ns2-a-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "ns2",
+              "type": "A",
+              "value": "192.168.1.2"
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "ptr-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "@",
+              "type": "PTR",
+              "value": "ptr.market.example.local."
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "rrsig-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "@",
+              "type": "RRSIG",
+              "value": "A 8 3 86400 20240601000000 20240501000000 12345 market.example.local. b1N2...=="
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "spf-txt-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "@",
+              "type": "TXT",
+              "value": "v=spf1 include:example.com ~all"
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "srv-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "_sip._tcp",
+              "type": "SRV",
+              "value": "10 5 5060 sipserver.example.com."
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSRecord",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "coredns-manager-operator",
+              "app.kubernetes.io/instance": "dnsrecord-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "dnsrecord",
+              "app.kubernetes.io/part-of": "coredns-manager-operator"
+            },
+            "name": "www-a-market-example",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "dnsZoneRef": {
+              "name": "market-example-zone"
+            },
+            "record": {
+              "name": "www",
+              "setPTR": true,
+              "type": "A",
+              "value": "10.100.100.10"
+            }
+          }
+        },
+        {
+          "apiVersion": "monkale.monkale.io/v1alpha1",
+          "kind": "DNSZone",
+          "metadata": {
+            "name": "market-example-zone",
+            "namespace": "kube-system"
+          },
+          "spec": {
+            "connectorName": "coredns",
+            "domain": "market.example.local",
+            "primaryNS": {
+              "ipAddress": "10.100.100.254"
+            },
+            "respPersonEmail": "admin@example.local"
+          }
+        }
+      ]
+    capabilities: Basic Install
+    createdAt: "2024-06-01T16:30:08Z"
+    operators.operatorframework.io/builder: operator-sdk-v1.33.0
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
+  name: coredns-manager-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: DNSConnector is the Schema for the dnsconnectors API
+      displayName: DNSConnector
+      kind: DNSConnector
+      name: dnsconnectors.monkale.monkale.io
+      version: v1alpha1
+    - description: DNSRecord is the Schema for the dnsrecords API
+      displayName: DNSRecord
+      kind: DNSRecord
+      name: dnsrecords.monkale.monkale.io
+      version: v1alpha1
+    - description: DNSZone is the Schema for the dnszones API
+      displayName: DNSZone
+      kind: DNSZone
+      name: dnszones.monkale.monkale.io
+      version: v1alpha1
+  description: The CoreDNS Manager Operator enables Kubernetes to function as a standalone
+    DNS server, ideal for offline or home lab environments. It eliminates the need
+    for additional DNS software like named or dnsmasq and supports a GitOps approach
+    for managing DNS configurations.
+  displayName: coredns-manager-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - monkale.monkale.io
+          resources:
+          - dnszones
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - monkale.monkale.io
+          resources:
+          - dnszones/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - monkale.monkale.io
+          resources:
+          - dnszones/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: coredns-manager-operator-controller-manager
+      deployments:
+      - label:
+          app.kubernetes.io/component: manager
+          app.kubernetes.io/created-by: coredns-manager-operator
+          app.kubernetes.io/instance: controller-manager
+          app.kubernetes.io/managed-by: kustomize
+          app.kubernetes.io/name: deployment
+          app.kubernetes.io/part-of: coredns-manager-operator
+          control-plane: controller-manager
+        name: coredns-manager-operator-controller-manager
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              control-plane: controller-manager
+          strategy: {}
+          template:
+            metadata:
+              annotations:
+                kubectl.kubernetes.io/default-container: manager
+              labels:
+                control-plane: controller-manager
+            spec:
+              containers:
+              - args:
+                - --secure-listen-address=0.0.0.0:8443
+                - --upstream=http://127.0.0.1:8080/
+                - --logtostderr=true
+                - --v=0
+                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1
+                name: kube-rbac-proxy
+                ports:
+                - containerPort: 8443
+                  name: https
+                  protocol: TCP
+                resources:
+                  limits:
+                    cpu: 500m
+                    memory: 128Mi
+                  requests:
+                    cpu: 5m
+                    memory: 64Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                    - ALL
+              - args:
+                - --health-probe-bind-address=:8081
+                - --metrics-bind-address=127.0.0.1:8080
+                - --leader-elect
+                command:
+                - /manager
+                image: controller:latest
+                livenessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: 8081
+                  initialDelaySeconds: 15
+                  periodSeconds: 20
+                name: manager
+                readinessProbe:
+                  httpGet:
+                    path: /readyz
+                    port: 8081
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                resources:
+                  limits:
+                    cpu: 500m
+                    memory: 128Mi
+                  requests:
+                    cpu: 10m
+                    memory: 64Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                    - ALL
+              securityContext:
+                runAsNonRoot: true
+              serviceAccountName: coredns-manager-operator-controller-manager
+              terminationGracePeriodSeconds: 10
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        serviceAccountName: coredns-manager-operator-controller-manager
+    strategy: deployment
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - coredns manager
+  - coredns operator
+  - dnsrecord
+  - dnszone
+  - internal dns
+  - dns gitops
+  links:
+  - name: Coredns Manager Operator
+    url: https://coredns-manager-operator.domain
+  maturity: alpha
+  provider:
+    name: monkale.io
+    url: https://github.com/monkale-io/coredns-manager-operator
+  version: 0.0.1

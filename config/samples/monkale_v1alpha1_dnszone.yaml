@@ -1,0 +1,11 @@
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSZone
+metadata:
+  name: market-example-zone
+  namespace: kube-system
+spec:
+  connectorName: coredns
+  domain: "market.example.local"
+  primaryNS:
+    ipAddress: "10.100.100.254"
+  respPersonEmail: "admin@example.local"
