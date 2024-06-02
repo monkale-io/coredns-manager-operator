@@ -52,19 +52,6 @@ func (r *DNSRecordReconciler) handleGenericRecord(ctx context.Context, dnsRecord
 	return record, nil
 }
 
-// handleGenericRecordWithNamedValue handle record that in value contains FQDN. This function ensures
-// that the value as well as the domain is fqdn.
-func (r *DNSRecordReconciler) handleGenericRecordWithNamedValue(ctx context.Context, dnsRecord *monkalev1alpha1.DNSRecord) (string, error) {
-	dnsRec := dnsRecord.DeepCopy()
-	dnsRec.Spec.Record.Name = monkalev1alpha1.EnsureFQDN(dnsRecord.Spec.Record.Name)
-	dnsRec.Spec.Record.Value = monkalev1alpha1.EnsureFQDN(dnsRecord.Spec.Record.Value)
-	record, err := r.handleGenericRecord(ctx, dnsRec)
-	if err != nil {
-		return "", fmt.Errorf("handle ARecord Error: %v", err)
-	}
-	return record, nil
-}
-
 // handleARecord handler A record + AutoPTR creation.
 func (r *DNSRecordReconciler) handleARecord(ctx context.Context, dnsRecord *monkalev1alpha1.DNSRecord) (string, error) {
 	var records string
@@ -108,7 +95,6 @@ func (r *DNSRecordReconciler) handleARecord(ctx context.Context, dnsRecord *monk
 // constructRecord templates DNS record according to RFC1035.
 func constructRecord(dnsRecord monkalev1alpha1.DNSRecord) (string, error) {
 	dnsRec := dnsRecord.DeepCopy()
-	dnsRec.Spec.Record.Name = monkalev1alpha1.EnsureFQDN(dnsRecord.Spec.Record.Name)
 
 	recordTmpl := `{{ .Spec.Record.Name }}{{ if .Spec.Record.TTL }} {{ .Spec.Record.TTL }}{{ end }} IN {{ .Spec.Record.Type }} {{ .Spec.Record.Value -}}`
 	tmpl, err := template.New("record").Parse(recordTmpl)
@@ -126,7 +112,7 @@ func constructRecord(dnsRecord monkalev1alpha1.DNSRecord) (string, error) {
 // validateRecords performs syntax check of DNSRecords provided as a string.
 func validateRecords(records string) error {
 	recordReader := strings.NewReader(records)
-	recordParser := dns.NewZoneParser(recordReader, "", "")
+	recordParser := dns.NewZoneParser(recordReader, ".", "")
 	for {
 		_, ok := recordParser.Next()
 		if !ok {

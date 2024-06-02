@@ -120,13 +120,13 @@ func (r *DNSRecordReconciler) reconcileDNSRecord(ctx context.Context, dnsRecord 
 			return ctrl.Result{}, err
 		}
 	case "CNAME":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
 		}
 	case "MX":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
@@ -138,19 +138,19 @@ func (r *DNSRecordReconciler) reconcileDNSRecord(ctx context.Context, dnsRecord 
 			return ctrl.Result{}, err
 		}
 	case "NS":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
 		}
 	case "PTR":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
 		}
 	case "SRV":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err

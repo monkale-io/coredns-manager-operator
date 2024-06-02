@@ -82,7 +82,7 @@ $TTL {{ .ZoneTTL }}s
 	{{.MinimumTTL}} ; Minimum TTL
 )
 @ IN NS {{.PrimaryNSHostname}}.{{.DomainName}}.
-{{.PrimaryNSHostname}}. IN {{.PrimaryNSType}} {{.PrimaryNSIp}}
+{{.PrimaryNSHostname}} IN {{.PrimaryNSType}} {{.PrimaryNSIp}}
 `
 	tmpl, err := template.New("HEADER").Parse(zoneTmpl)
 	if err != nil {
