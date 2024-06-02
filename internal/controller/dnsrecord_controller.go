@@ -45,6 +45,7 @@ type DNSRecordReconciler struct {
 // +kubebuilder:rbac:groups=monkale.monkale.io,resources=dnsrecords,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monkale.monkale.io,resources=dnsrecords/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=monkale.monkale.io,resources=dnsrecords/finalizers,verbs=update
+
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
 func (r *DNSRecordReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {

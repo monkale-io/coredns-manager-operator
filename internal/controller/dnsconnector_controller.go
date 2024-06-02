@@ -54,6 +54,10 @@ type DNSConnectorReconciler struct {
 // +kubebuilder:rbac:groups=monkale.monkale.io,resources=dnsconnectors,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monkale.monkale.io,resources=dnsconnectors/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=monkale.monkale.io,resources=dnsconnectors/finalizers,verbs=update
+//+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=apps,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
+
 func (r *DNSConnectorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 	var dnsConnector monkalev1alpha1.DNSConnector

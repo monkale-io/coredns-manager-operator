@@ -48,6 +48,7 @@ type DNSZoneReconciler struct {
 }
 
 //+kubebuilder:rbac:groups=monkale.monkale.io,resources=dnszones,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=monkale.monkale.io,resources=dnszones/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=monkale.monkale.io,resources=dnszones/finalizers,verbs=update
 
