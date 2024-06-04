@@ -71,8 +71,8 @@ type CoreDNSDeploymentType struct {
 type DNSConnectorSpec struct {
 	// waitForUpdateTimeout specifies how long the DNSConnector for coredns to complete update.
 	// if coredns deployment haven't complete the update, the controller will perform rollback.
-	// The default value is 300 seconds (5 min)
-	// +kubebuilder:default:=300
+	// The default value is 120 seconds (2 min)
+	// +kubebuilder:default:=120
 	WaitForUpdateTimeout int `json:"waitForUpdateTimeout"`
 
 	// corednsCM is the name of the CoreDNS ConfigMap.
