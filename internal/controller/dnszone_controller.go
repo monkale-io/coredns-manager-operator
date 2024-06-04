@@ -94,11 +94,22 @@ func (r *DNSZoneReconciler) reconcileDelete(ctx context.Context, dnsZone *monkal
 	_ = log.FromContext(ctx)
 	previousState := dnsZone.DeepCopy()
 	// Remove finalizer from the CM
+	var currentCM corev1.ConfigMap
 	cmConnObj := types.NamespacedName{Name: dnsZone.Spec.CMPrefix + dnsZone.Name, Namespace: dnsZone.Namespace}
-	log.Log.Info("DNSZone instance is being deleted. Removing finalizer from configmap", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
-	if err := removeFinalizer(ctx, r.Client, cmConnObj, &corev1.ConfigMap{}, monkalev1alpha1.DnsZonesFinalizerName); err != nil {
-		log.Log.Error(err, "Deleting DNSZone. Failed to delete finalizer from Zone CM", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
-		return ctrl.Result{}, err
+	cmErr := r.Get(ctx, cmConnObj, &currentCM)
+
+	// Any not "isNotFound" error while fetching ConfigMap
+	if cmErr != nil && !apierrors.IsNotFound(cmErr) {
+		log.Log.Error(cmErr, "DNSZone instance is being deleted. Error while fetching ConfigMap", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+		return ctrl.Result{}, cmErr
+	} else if apierrors.IsNotFound(cmErr) {
+		log.Log.Info("DNSZone instance is being deleted. DNZZone configMap does not exist", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+	} else {
+		log.Log.Info("DNSZone instance is being deleted. Removing finalizer from configmap", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+		if err := removeFinalizer(ctx, r.Client, cmConnObj, &currentCM, monkalev1alpha1.DnsZonesFinalizerName); err != nil {
+			log.Log.Error(err, "DNSZone instance is being deleted. Failed to delete finalizer from Zone CM", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+			return ctrl.Result{}, err
+		}
 	}
 
 	// Notify all DNSRecords that the zone has been removed
