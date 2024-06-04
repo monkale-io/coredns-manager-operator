@@ -107,12 +107,11 @@ func (r *DNSRecordReconciler) reconcileDNSRecord(ctx context.Context, dnsRecord 
 	recordType := dnsRecord.Spec.Record.Type
 	switch recordType {
 	case "A":
-		_, err := r.handleARecord(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
 		}
-		// ctrl.Result{RequeueAfter: time.Duration}
 	case "AAAA":
 		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
