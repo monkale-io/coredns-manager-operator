@@ -189,7 +189,7 @@ func (r *DNSZoneReconciler) reconcileCreateOrUpdate(ctx context.Context, dnsZone
 			return ctrl.Result{}, fmt.Errorf("failed to refresh DNSRecord resource: %v", err)
 		}
 		// update resource
-		message := fmt.Sprintf("Record has joined to the DNSZone: %s, Waiting for DNSConnector to pick up the zone: %s", dnsZone.Name, dnsZone.Spec.ConnectorName)
+		message := fmt.Sprintf("Record has joined to the DNSZone: %s", dnsZone.Name)
 		setDnsRecordCondition(dnsRecObj, metav1.ConditionTrue, monkalev1alpha1.ConditionReasonRecordReady, message)
 		if err := r.Status().Update(ctx, dnsRecObj); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to update status and condition: %v", err)
@@ -239,7 +239,7 @@ func (r *DNSZoneReconciler) createOrUpdateZoneCM(ctx context.Context, dnsZone *m
 		if err := r.refreshDNSZoneResource(ctx, previousState); err != nil {
 			return fmt.Errorf("failed to refresh DNSZone resource: %v", err)
 		}
-		message := fmt.Sprintf("Zone validation failure. Preserving the previous version. See controller log. Error: %s", err)
+		message := fmt.Sprintf("Zone validation failure. Preserving the previous version. Error: %s", err)
 		setDnsZoneCondition(dnsZone, metav1.ConditionFalse, monkalev1alpha1.ConditionReasonZoneUpdateErr, message)
 		if err := r.dnsZoneUpdateStatus(ctx, previousState, dnsZone); err != nil {
 			return fmt.Errorf("failed to update status and condition: %v", err)
