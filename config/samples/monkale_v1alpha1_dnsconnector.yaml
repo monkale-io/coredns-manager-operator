@@ -4,7 +4,7 @@ metadata:
   name: coredns
   namespace: kube-system
 spec:
-  waitForUpdateTimeout: 13
+  waitForUpdateTimeout: 120
   corednsCM: 
     name: coredns
     corefileKey: Corefile

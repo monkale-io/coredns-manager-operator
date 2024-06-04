@@ -15,7 +15,26 @@ spec:
     name: "www"
     value: "10.100.100.10"
     type: "A"
-    setPTR: true
+  dnsZoneRef:
+    name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: app1-a-fqdn-test-market-example
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: dnsrecord
+    app.kubernetes.io/instance: dnsrecord-sample
+    app.kubernetes.io/part-of: coredns-manager-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: coredns-manager-operator
+spec:
+  record:
+    name: "app1.market.example.com."
+    value: "10.100.100.10"
+    type: "A"
   dnsZoneRef:
     name: "market-example-zone"
 
@@ -35,27 +54,6 @@ spec:
   record:
     name: "mail"
     value: "10.100.100.20"
-    type: "A"
-    setPTR: true
-  dnsZoneRef:
-    name: "market-example-zone"
-
----
-apiVersion: monkale.monkale.io/v1alpha1
-kind: DNSRecord
-metadata:
-  name: ns1-a-market-example
-  namespace: kube-system
-  labels:
-    app.kubernetes.io/name: dnsrecord
-    app.kubernetes.io/instance: dnsrecord-sample
-    app.kubernetes.io/part-of: coredns-manager-operator
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: coredns-manager-operator
-spec:
-  record:
-    name: "ns1"
-    value: "192.168.1.1"
     type: "A"
   dnsZoneRef:
     name: "market-example-zone"
@@ -95,7 +93,7 @@ metadata:
 spec:
   record:
     name: "ftp"
-    value: "www.market.example.local."
+    value: "www.market.example.com."
     type: "CNAME"
   dnsZoneRef:
     name: "market-example-zone"
@@ -115,7 +113,7 @@ metadata:
 spec:
   record:
     name: "@"
-    value: "10 mail.market.example.local."
+    value: "10 mail.market.example.com."
     type: "MX"
   dnsZoneRef:
     name: "market-example-zone"
@@ -184,47 +182,6 @@ spec:
 apiVersion: monkale.monkale.io/v1alpha1
 kind: DNSRecord
 metadata:
-  name: ptr-market-example
-  namespace: kube-system
-  labels:
-    app.kubernetes.io/name: dnsrecord
-    app.kubernetes.io/instance: dnsrecord-sample
-    app.kubernetes.io/part-of: coredns-manager-operator
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: coredns-manager-operator
-spec:
-  record:
-    name: "@"
-    value: "ptr.market.example.local."
-    type: "PTR"
-  dnsZoneRef:
-    name: "market-example-zone"
-
----
-apiVersion: monkale.monkale.io/v1alpha1
-kind: DNSRecord
-metadata:
-  name: naptr-market-example
-  namespace: kube-system
-  labels:
-    app.kubernetes.io/name: dnsrecord
-    app.kubernetes.io/instance: dnsrecord-sample
-    app.kubernetes.io/part-of: coredns-manager-operator
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: coredns-manager-operator
-spec:
-  record:
-    name: "@"
-    value: "100 50 \"u\" \"E2U+sip\" \"!^.*$!sip:info@market.example.local!i\" ."
-    type: "NAPTR"
-  dnsZoneRef:
-    name: "market-example-zone"
-
-
----
-apiVersion: monkale.monkale.io/v1alpha1
-kind: DNSRecord
-metadata:
   name: dnskey-market-example
   namespace: kube-system
   labels:
@@ -256,7 +213,7 @@ metadata:
 spec:
   record:
     name: "@"
-    value: "A 8 3 86400 20240601000000 20240501000000 12345 market.example.local. b1N2...=="
+    value: "A 8 3 86400 20240601000000 20240501000000 12345 market.example.com. b1N2...=="
     type: "RRSIG"
   dnsZoneRef:
     name: "market-example-zone"
@@ -280,3 +237,17 @@ spec:
     type: "HINFO"
   dnsZoneRef:
     name: "market-example-zone"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSRecord
+metadata:
+  name: record-no-zone-test
+  namespace: kube-system
+spec:
+  record:
+    name: "haproxy.cpe"
+    value: "10.149.149.10"
+    type: "A"
+  dnsZoneRef:
+    name: "this-zone-does-not-exist"
