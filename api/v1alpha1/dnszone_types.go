@@ -93,14 +93,14 @@ type DNSZoneSpec struct {
 	// +kubebuilder:validation:Optional
 	TTL uint `json:"ttl,omitempty"`
 
-	// refrashRate defines the time a secondary DNS server waits before querying the primary DNS
+	// refreshRate defines the time a secondary DNS server waits before querying the primary DNS
 	// server to check for updates.
 	// If the zone file has changed, secondary servers will refresh their data.
 	// these records should be cached by DNS resolvers.
 	// The default value is 7200 seconds (2 hours)
 	// +kubebuilder:default:=7200
 	// +kubebuilder:validation:Optional
-	RefreshRate uint `json:"refrashRate,omitempty"`
+	RefreshRate uint `json:"refreshRate,omitempty"`
 
 	// retryInterval defines how long secondary server failed should wait
 	// before trying again to reconnect to the primary again.
