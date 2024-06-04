@@ -240,6 +240,7 @@ func (r *DNSZoneReconciler) createOrUpdateZoneCM(ctx context.Context, dnsZone *m
 			return fmt.Errorf("failed to refresh DNSZone resource: %v", err)
 		}
 		message := fmt.Sprintf("Zone validation failure. Preserving the previous version. Error: %s", err)
+		dnsZone.Status.ValidationPassed = false
 		setDnsZoneCondition(dnsZone, metav1.ConditionFalse, monkalev1alpha1.ConditionReasonZoneUpdateErr, message)
 		if err := r.dnsZoneUpdateStatus(ctx, previousState, dnsZone); err != nil {
 			return fmt.Errorf("failed to update status and condition: %v", err)
@@ -301,6 +302,7 @@ func (r *DNSZoneReconciler) createOrUpdateZoneCM(ctx context.Context, dnsZone *m
 	setDnsZoneCondition(dnsZone, metav1.ConditionTrue, monkalev1alpha1.ConditionReasonZonePending, message)
 	dnsZone.Status.RecordCount = bakedRecords.count
 	dnsZone.Status.ValidationPassed = true
+	dnsZone.Status.Checkpoint = true
 	dnsZone.Status.ZoneConfigmap = cmConnObj.Name
 	if err := r.dnsZoneUpdateStatus(ctx, previousState, dnsZone); err != nil {
 		return fmt.Errorf("failed to update status and condition: %v", err)

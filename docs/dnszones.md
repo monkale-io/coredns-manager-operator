@@ -119,6 +119,8 @@ The DNSZone resource also includes status fields that reflect the observed state
 
 * `zoneConfigmap` (string): The name of the generated zone config map.
 
+* `checkpoint` (bool): Indicates whether the DNSZone was previously active. This flag is used to instruct the DNSConnector to preserve the old version of the DNSZone in case the update process encounters an issue.
+
 ### Status Example
 ```json
 {

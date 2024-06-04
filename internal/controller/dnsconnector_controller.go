@@ -349,11 +349,16 @@ func (r *DNSConnectorReconciler) fetchGoodZonefileCM(ctx context.Context, dnsCon
 		return monkalev1alpha1.DNSZoneList{}, corev1.ConfigMapList{}, fmt.Errorf("could not list DNSZones: %v", err)
 	}
 
-	// get only ready records
+	// get only Ready zone && and keep zones that were previously good
 	goodZones := &monkalev1alpha1.DNSZoneList{}
 	for _, dnsZone := range dnsZones.Items {
 		for _, condition := range dnsZone.Status.Conditions {
+			// If Ready
 			if condition.Type == monkalev1alpha1.ConditionZoneTypeReady && condition.Status == metav1.ConditionTrue {
+				goodZones.Items = append(goodZones.Items, dnsZone)
+				break
+			} else if dnsZone.Status.Checkpoint {
+				// zones that were previously good will contain Checkpoint: true
 				goodZones.Items = append(goodZones.Items, dnsZone)
 				break
 			}

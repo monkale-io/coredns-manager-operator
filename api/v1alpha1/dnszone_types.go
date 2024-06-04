@@ -157,6 +157,11 @@ type DNSZoneStatus struct {
 
 	// zoneConfigmap displays the name of the generated zone config map
 	ZoneConfigmap string `json:"zoneConfigmap,omitempty"`
+
+	// checkpoint flag indicates whether the DNSZone was previously active.
+	// This flag is used to instruct the DNSConnector to preserve the old version of the DNSZone
+	// in case the update process encounters an issue.
+	Checkpoint bool `json:"checkpoint,omitempty"`
 }
 
 //+kubebuilder:object:root=true
