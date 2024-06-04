@@ -481,10 +481,6 @@ func (r *DNSConnectorReconciler) reconcileDelete(ctx context.Context, dnsConnect
 		return ctrl.Result{}, err
 	}
 
-	// remove configmap from the deployment
-	/*
-		HERE SOME CODE
-	*/
 	// Remove finazlizer from DNSConnector
 	dnsRecObj := types.NamespacedName{Name: dnsConnector.Name, Namespace: dnsConnector.Namespace}
 	clientK8sObj := dnsConnector.DeepCopy()
