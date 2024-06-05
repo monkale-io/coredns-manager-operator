@@ -129,7 +129,7 @@ If you decide to stop using the coredns-manager-operator, ensure proper unpluggi
    $ kubectl describe cm coredns
    ``` 
 
-5. Coredns will automatically reload the restored CoreDNS configuration in a few minutes. However, the operator will not remove the `Volume`, `VolumeMoun`t, and `Mount` resources for zone files. You will need to remove these resources manually. (This is expected to be fixed in future versions.)
+5. Coredns will automatically reload the restored CoreDNS configuration in a few minutes. However, the operator will not remove the `Volumes` and `VolumeMounts` resources for zone files. You will need to remove these resources manually. (This is expected to be fixed in future versions.)
    ```sh
    # remove zone volumes and volumeMounts
    $ kubectl edit deployments.apps coredns
