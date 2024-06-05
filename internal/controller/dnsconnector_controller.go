@@ -256,8 +256,11 @@ func (r *DNSConnectorReconciler) reconcileDNSConnector(ctx context.Context, dnsC
 		return ctrl.Result{}, err
 	}
 
-	// Update status for all DNSZones
-	if err := r.notifyDNSZones(ctx, &dnsZonesList, metav1.ConditionTrue, monkalev1alpha1.ConditionReasonZoneActive, "Picked up by DNSConnector"); err != nil {
+	// Update status for all related Good DNSZones
+	statusGood := metav1.ConditionTrue
+	reasonGood := monkalev1alpha1.ConditionReasonZoneActive
+	messageGood := "Picked up by DNSConnector."
+	if err := r.notifyGoodDNSZones(ctx, &dnsZonesList, statusGood, reasonGood, messageGood); err != nil {
 		log.Log.Error(err, "DNSConnector instance. Reconciling. Could update DNSZone status", "DNSConnector.Name", dnsConnector.Name)
 		return ctrl.Result{}, err
 	}
@@ -291,17 +294,19 @@ func (r *DNSConnectorReconciler) reconcileDNSConnector(ctx context.Context, dnsC
 	return ctrl.Result{}, nil
 }
 
-// notifyDNSZones is used to Iterate over DNSZones and update theirs condition
-func (r *DNSConnectorReconciler) notifyDNSZones(ctx context.Context, dnsZonesList *monkalev1alpha1.DNSZoneList, status metav1.ConditionStatus, reason, message string) error {
+// notifyGoodDNSZones is used to iterate over ALL related validated&joined DNSZones and update theirs condition.
+func (r *DNSConnectorReconciler) notifyGoodDNSZones(ctx context.Context, dnsZonesList *monkalev1alpha1.DNSZoneList, statusGood metav1.ConditionStatus, reasonGood, messageGood string) error {
 	for _, dnsZone := range dnsZonesList.Items {
 		dnsZoneType := types.NamespacedName{Name: dnsZone.Name, Namespace: dnsZone.Namespace}
 		dnsZoneObj := dnsZone.DeepCopy()
 		if err := getObjFromK8s(ctx, r.Client, dnsZoneType, dnsZoneObj); err != nil {
 			return fmt.Errorf("failed to refresh DNSRecord resource: %v", err)
 		}
-		setDnsZoneCondition(dnsZoneObj, status, reason, message)
-		if err := r.Status().Update(ctx, dnsZoneObj); err != nil {
-			return fmt.Errorf("failed to update status and condition: %v", err)
+		if dnsZoneObj.Status.ValidationPassed {
+			setDnsZoneCondition(dnsZoneObj, statusGood, reasonGood, messageGood)
+			if err := r.Status().Update(ctx, dnsZoneObj); err != nil {
+				return fmt.Errorf("failed to update status and condition: %v", err)
+			}
 		}
 	}
 	return nil
@@ -334,10 +339,9 @@ func (r *DNSConnectorReconciler) fetchCorednsDeployment(ctx context.Context, dns
 	return corednsResObj, nil
 }
 
-// fetchGoodZonefileCM used to fetch zonefiles configMaps related to dnsConnector.
-// It will fetch all dnsZones for DnsZoneConnectorIndex, then it will filter only Ready dnsZones.
-// Eventually it will extract configmaps. Returns list of zone configmaps sorted a-z
-func (r *DNSConnectorReconciler) fetchGoodZonefileCM(ctx context.Context, dnsConnector *monkalev1alpha1.DNSConnector) (monkalev1alpha1.DNSZoneList, corev1.ConfigMapList, error) {
+// fetchGoodZones used to fetch zonefiles configMaps related to dnsConnector.
+// It will fetch all dnsZones for DnsZoneConnectorIndex, then it will filter only Ready dnsZones and old version of zones that were previously ok.
+func (r *DNSConnectorReconciler) fetchGoodZones(ctx context.Context, dnsConnector *monkalev1alpha1.DNSConnector) (monkalev1alpha1.DNSZoneList, error) {
 	dnsZones := &monkalev1alpha1.DNSZoneList{}
 	// list all DNSZone for using ConnectorName reference.
 	fieldSelector := fields.OneTermEqualSelector(monkalev1alpha1.DnsZoneConnectorIndex, dnsConnector.Name)
@@ -346,10 +350,9 @@ func (r *DNSConnectorReconciler) fetchGoodZonefileCM(ctx context.Context, dnsCon
 		Namespace:     dnsConnector.Namespace,
 	}
 	if err := r.List(ctx, dnsZones, listOps); err != nil {
-		return monkalev1alpha1.DNSZoneList{}, corev1.ConfigMapList{}, fmt.Errorf("could not list DNSZones: %v", err)
+		return monkalev1alpha1.DNSZoneList{}, fmt.Errorf("could not list DNSZones: %v", err)
 	}
 
-	// get only Ready zone && and keep zones that were previously good
 	goodZones := &monkalev1alpha1.DNSZoneList{}
 	for _, dnsZone := range dnsZones.Items {
 		for _, condition := range dnsZone.Status.Conditions {
@@ -363,6 +366,18 @@ func (r *DNSConnectorReconciler) fetchGoodZonefileCM(ctx context.Context, dnsCon
 				break
 			}
 		}
+	}
+
+	return *goodZones, nil
+}
+
+// fetchGoodZonefileCM used to fetch zonefiles configMaps related to dnsConnector.
+// It will fetch all dnsZones for DnsZoneConnectorIndex, then it will filter only Ready dnsZones, and old version of zones that were previously ok.
+// Eventually it will extract configmaps. Returns list of zone configmaps sorted a-z
+func (r *DNSConnectorReconciler) fetchGoodZonefileCM(ctx context.Context, dnsConnector *monkalev1alpha1.DNSConnector) (monkalev1alpha1.DNSZoneList, corev1.ConfigMapList, error) {
+	goodZones, err := r.fetchGoodZones(ctx, dnsConnector)
+	if err != nil {
+		return monkalev1alpha1.DNSZoneList{}, corev1.ConfigMapList{}, fmt.Errorf("could not get DNSZones: %v", err)
 	}
 
 	// Create a ConfigMapList to return the result
@@ -381,7 +396,7 @@ func (r *DNSConnectorReconciler) fetchGoodZonefileCM(ctx context.Context, dnsCon
 		return configMapList.Items[i].Name < configMapList.Items[j].Name
 	})
 
-	return *goodZones, configMapList, nil
+	return goodZones, configMapList, nil
 }
 
 // backupOriginalCorefileCM check if backup coredns configfile is already exist. If not create it. Otherwise just exit.
@@ -490,6 +505,16 @@ func (r *DNSConnectorReconciler) reconcileDelete(ctx context.Context, dnsConnect
 		return ctrl.Result{}, err
 	}
 
+	// Notify all good zones
+	goodZones, err := r.fetchGoodZones(ctx, dnsConnector)
+	if err != nil {
+		log.Log.Error(err, "DNSConnector instance. Failed to notify DNSZones", "DNSConnector.Name", dnsConnector.Name)
+		return ctrl.Result{}, err
+	}
+	if err := r.notifyGoodDNSZones(ctx, &goodZones, metav1.ConditionFalse, monkalev1alpha1.ConditionReasonZonePending, "DNSConnector has been removed"); err != nil {
+		log.Log.Error(err, "DNSConnector instance. Reconciling. Could update DNSZone status", "DNSConnector.Name", dnsConnector.Name)
+		return ctrl.Result{}, err
+	}
 	// Done
 	log.Log.Info("DNSConnector instance. The DNSConnector has been deleted.", "DNSConnector.Name", dnsConnector.Name)
 	return ctrl.Result{}, nil
