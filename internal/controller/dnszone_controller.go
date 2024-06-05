@@ -247,6 +247,7 @@ func (r *DNSZoneReconciler) createOrUpdateZoneCM(ctx context.Context, dnsZone *m
 
 	// Validate zone
 	if err := validateRecords(zone); err != nil {
+		// update status
 		if err := r.refreshDNSZoneResource(ctx, previousState); err != nil {
 			return fmt.Errorf("failed to refresh DNSZone resource: %v", err)
 		}
@@ -256,8 +257,9 @@ func (r *DNSZoneReconciler) createOrUpdateZoneCM(ctx context.Context, dnsZone *m
 		if err := r.dnsZoneUpdateStatus(ctx, previousState, dnsZone); err != nil {
 			return fmt.Errorf("failed to update status and condition: %v", err)
 		}
-		log.Log.Error(err, "DNSZone instance. Reconciling ZoneCM.", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
-		return err
+		// if validation failed, no reason to reconcile again, it will create unneccessary reconcilation loops. user must fix it.
+		log.Log.Error(err, "DNSZone instance. Reconciling ZoneCM. Will not reconcile again.", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+		return nil
 	}
 
 	// Construct the Zone ConfigMap
