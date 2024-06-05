@@ -29,7 +29,7 @@ const (
 	ConditionConnectorTypeReady       string = "Ready"                    // ConditionConnectorTypeReady is used to update condition type
 	ConditionReasonConnectorActive    string = "Active"                   // ConditionReasonConnectorActive represents state of the DNSConnector
 	ConditionReasonConnectorError     string = "Error"                    // ConditionReasonConnectorError represents the error state of the DNSConnector
-	ConditionReasonConnectorUpdating  string = "Updating"                 // ConditionReasonConnectorError represents the
+	ConditionReasonConnectorUpdating  string = "Updating"                 // ConditionReasonConnectorUpdating represents the
 	ConditionReasonConnectorUpdateErr string = "UpdateError"              // ConditionReasonConnectorUpdateErr represents state of the DNSConnector
 	ConditionReasonConnectorUnknown   string = "Unknown"                  // ConditionReasonConnectorUnknown string = "Unknown"
 	DnsConnectorsFinalizerName        string = "dnsconnectors/finalizers" // DnsConnectorsFinalizerName is finalizer used by DNSConnector controller
