@@ -45,6 +45,7 @@ type DNSRecordReconciler struct {
 // +kubebuilder:rbac:groups=monkale.monkale.io,resources=dnsrecords,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monkale.monkale.io,resources=dnsrecords/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=monkale.monkale.io,resources=dnsrecords/finalizers,verbs=update
+
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
 func (r *DNSRecordReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -106,12 +107,11 @@ func (r *DNSRecordReconciler) reconcileDNSRecord(ctx context.Context, dnsRecord 
 	recordType := dnsRecord.Spec.Record.Type
 	switch recordType {
 	case "A":
-		_, err := r.handleARecord(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
 		}
-		// ctrl.Result{RequeueAfter: time.Duration}
 	case "AAAA":
 		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
@@ -119,13 +119,13 @@ func (r *DNSRecordReconciler) reconcileDNSRecord(ctx context.Context, dnsRecord 
 			return ctrl.Result{}, err
 		}
 	case "CNAME":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
 		}
 	case "MX":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
@@ -137,19 +137,19 @@ func (r *DNSRecordReconciler) reconcileDNSRecord(ctx context.Context, dnsRecord 
 			return ctrl.Result{}, err
 		}
 	case "NS":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
 		}
 	case "PTR":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err
 		}
 	case "SRV":
-		_, err := r.handleGenericRecordWithNamedValue(ctx, dnsRecord)
+		_, err := r.handleGenericRecord(ctx, dnsRecord)
 		if err != nil {
 			log.Log.Error(err, "DNSRecord instance. Proccess Record Failure", "DNSRecord.Name", dnsRecord.Name, "DNSZone.Name", dnsRecord.Spec.DNSZoneRef.Name)
 			return ctrl.Result{}, err

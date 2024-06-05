@@ -1,3 +1,4 @@
+---
 apiVersion: monkale.monkale.io/v1alpha1
 kind: DNSZone
 metadata:
@@ -5,7 +6,20 @@ metadata:
   namespace: kube-system
 spec:
   connectorName: coredns
-  domain: "market.example.local"
+  domain: "market.example.com"
   primaryNS:
     ipAddress: "10.100.100.254"
-  respPersonEmail: "admin@example.local"
+  respPersonEmail: "admin@example.com"
+
+---
+apiVersion: monkale.monkale.io/v1alpha1
+kind: DNSZone
+metadata:
+  name: no-connector-test-zone
+  namespace: kube-system
+spec:
+  connectorName: this-connector-does-not-exist
+  domain: "test.com."
+  primaryNS:
+    ipAddress: "10.120.100.11"
+  respPersonEmail: "admin@test.local"

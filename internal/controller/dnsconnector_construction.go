@@ -59,7 +59,7 @@ func generateCorefileCM(dnsConnector *monkalev1alpha1.DNSConnector, corednsConfC
 		}
 
 		// Ensure that zonefile contains zonefile in the cm.data
-		zonefileName := domainName + ".zone"
+		zonefileName := monkalev1alpha1.EnsureFQDN(domainName) + "zone"
 		if _, ok := configMap.Data[zonefileName]; !ok {
 			return corev1.ConfigMap{}, fmt.Errorf("configMap %s does not contain zonefile data", configMap.Name)
 		}
@@ -117,6 +117,8 @@ func getDesiredVolumes(configMaps *corev1.ConfigMapList) (map[string]string, err
 			return nil, fmt.Errorf("configMap %s does not have a domain annotation", configMap.Name)
 		}
 		volumeName := fmt.Sprintf("dnszone-%s", strings.ReplaceAll(domainName, ".", "-"))
+		volumeName = strings.TrimSuffix(volumeName, "-")
+
 		desiredVolumes[volumeName] = configMap.Name
 	}
 	return desiredVolumes, nil
@@ -178,6 +180,7 @@ func setZoneFileConifgMaps(dnsConnector monkalev1alpha1.DNSConnector, corednsDep
 		// build volume name
 		domainName := strings.TrimPrefix(volumeName, "dnszone-")
 		domainName = strings.ReplaceAll(domainName, "-", ".")
+		domainName = strings.TrimSuffix(domainName, "-")
 
 		volume := corev1.Volume{
 			Name: volumeName,

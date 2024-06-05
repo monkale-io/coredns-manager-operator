@@ -26,7 +26,7 @@ type bakedRecords struct {
 func constructZoneFile(dnsZone *monkalev1alpha1.DNSZone, records string, serialNumber string) (string, error) {
 	var newZoneHeader string
 	newZoneHeaderValues := monkalev1alpha1.DNSZoneHeader{
-		DomainName:        dnsZone.Spec.Domain,
+		DomainName:        monkalev1alpha1.EnsureFQDN(dnsZone.Spec.Domain),
 		PrimaryNSHostname: dnsZone.Spec.PrimaryNS.Hostname,
 		PrimaryNSIp:       dnsZone.Spec.PrimaryNS.IPAddress,
 		PrimaryNSType:     dnsZone.Spec.PrimaryNS.RecordType,
@@ -64,7 +64,7 @@ func constructZoneConfigMap(cmObj string, dnsZone *monkalev1alpha1.DNSZone, zone
 			},
 		},
 		Data: map[string]string{
-			dnsZone.Spec.Domain + ".zone": zonefileContent,
+			monkalev1alpha1.EnsureFQDN(dnsZone.Spec.Domain) + "zone": zonefileContent,
 		},
 	}
 	return cm, nil
@@ -72,17 +72,17 @@ func constructZoneConfigMap(cmObj string, dnsZone *monkalev1alpha1.DNSZone, zone
 
 // templateZoneHeader builds Zone header: SOA and first NS A record
 func templateZoneHeader(header monkalev1alpha1.DNSZoneHeader) (string, error) {
-	zoneTmpl := `$ORIGIN {{.DomainName}}.
+	zoneTmpl := `$ORIGIN {{.DomainName}}
 $TTL {{ .ZoneTTL }}s
-@ IN SOA {{.PrimaryNSHostname}}.{{.DomainName}}. {{.RespPerson}}. (
+@ IN SOA {{.PrimaryNSHostname}}.{{.DomainName}} {{.RespPerson}}. (
 	{{.Serial}}     ; Serial
 	{{.Refresh}}    ; Refresh
 	{{.Retry}}      ; Retry
 	{{.Expire}}     ; Expire
 	{{.MinimumTTL}} ; Minimum TTL
 )
-@ IN NS {{.PrimaryNSHostname}}.{{.DomainName}}.
-{{.PrimaryNSHostname}}. IN {{.PrimaryNSType}} {{.PrimaryNSIp}}
+@ IN NS {{.PrimaryNSHostname}}.{{.DomainName}}
+{{.PrimaryNSHostname}} IN {{.PrimaryNSType}} {{.PrimaryNSIp}}
 `
 	tmpl, err := template.New("HEADER").Parse(zoneTmpl)
 	if err != nil {

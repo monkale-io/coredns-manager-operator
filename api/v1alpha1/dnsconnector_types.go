@@ -29,7 +29,7 @@ const (
 	ConditionConnectorTypeReady       string = "Ready"                    // ConditionConnectorTypeReady is used to update condition type
 	ConditionReasonConnectorActive    string = "Active"                   // ConditionReasonConnectorActive represents state of the DNSConnector
 	ConditionReasonConnectorError     string = "Error"                    // ConditionReasonConnectorError represents the error state of the DNSConnector
-	ConditionReasonConnectorUpdating  string = "Updating"                 // ConditionReasonConnectorError represents the
+	ConditionReasonConnectorUpdating  string = "Updating"                 // ConditionReasonConnectorUpdating represents the
 	ConditionReasonConnectorUpdateErr string = "UpdateError"              // ConditionReasonConnectorUpdateErr represents state of the DNSConnector
 	ConditionReasonConnectorUnknown   string = "Unknown"                  // ConditionReasonConnectorUnknown string = "Unknown"
 	DnsConnectorsFinalizerName        string = "dnsconnectors/finalizers" // DnsConnectorsFinalizerName is finalizer used by DNSConnector controller
@@ -71,8 +71,8 @@ type CoreDNSDeploymentType struct {
 type DNSConnectorSpec struct {
 	// waitForUpdateTimeout specifies how long the DNSConnector for coredns to complete update.
 	// if coredns deployment haven't complete the update, the controller will perform rollback.
-	// The default value is 300 seconds (5 min)
-	// +kubebuilder:default:=300
+	// The default value is 120 seconds (2 min)
+	// +kubebuilder:default:=120
 	WaitForUpdateTimeout int `json:"waitForUpdateTimeout"`
 
 	// corednsCM is the name of the CoreDNS ConfigMap.

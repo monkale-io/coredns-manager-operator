@@ -5,6 +5,106 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monkale.monkale.io
+  resources:
+  - dnsconnectors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monkale.monkale.io
+  resources:
+  - dnsconnectors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - monkale.monkale.io
+  resources:
+  - dnsconnectors/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - monkale.monkale.io
+  resources:
+  - dnsrecords
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monkale.monkale.io
+  resources:
+  - dnsrecords/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - monkale.monkale.io
+  resources:
+  - dnsrecords/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - monkale.monkale.io
   resources:
   - dnszones

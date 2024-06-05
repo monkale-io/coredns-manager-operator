@@ -48,6 +48,7 @@ type DNSZoneReconciler struct {
 }
 
 //+kubebuilder:rbac:groups=monkale.monkale.io,resources=dnszones,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=monkale.monkale.io,resources=dnszones/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=monkale.monkale.io,resources=dnszones/finalizers,verbs=update
 
@@ -93,11 +94,22 @@ func (r *DNSZoneReconciler) reconcileDelete(ctx context.Context, dnsZone *monkal
 	_ = log.FromContext(ctx)
 	previousState := dnsZone.DeepCopy()
 	// Remove finalizer from the CM
+	var currentCM corev1.ConfigMap
 	cmConnObj := types.NamespacedName{Name: dnsZone.Spec.CMPrefix + dnsZone.Name, Namespace: dnsZone.Namespace}
-	log.Log.Info("DNSZone instance is being deleted. Removing finalizer from configmap", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
-	if err := removeFinalizer(ctx, r.Client, cmConnObj, &corev1.ConfigMap{}, monkalev1alpha1.DnsZonesFinalizerName); err != nil {
-		log.Log.Error(err, "Deleting DNSZone. Failed to delete finalizer from Zone CM", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
-		return ctrl.Result{}, err
+	cmErr := r.Get(ctx, cmConnObj, &currentCM)
+
+	// Any not "isNotFound" error while fetching ConfigMap
+	if cmErr != nil && !apierrors.IsNotFound(cmErr) {
+		log.Log.Error(cmErr, "DNSZone instance is being deleted. Error while fetching ConfigMap", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+		return ctrl.Result{}, cmErr
+	} else if apierrors.IsNotFound(cmErr) {
+		log.Log.Info("DNSZone instance is being deleted. DNZZone configMap does not exist", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+	} else {
+		log.Log.Info("DNSZone instance is being deleted. Removing finalizer from configmap", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+		if err := removeFinalizer(ctx, r.Client, cmConnObj, &currentCM, monkalev1alpha1.DnsZonesFinalizerName); err != nil {
+			log.Log.Error(err, "DNSZone instance is being deleted. Failed to delete finalizer from Zone CM", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+			return ctrl.Result{}, err
+		}
 	}
 
 	// Notify all DNSRecords that the zone has been removed
@@ -188,7 +200,7 @@ func (r *DNSZoneReconciler) reconcileCreateOrUpdate(ctx context.Context, dnsZone
 			return ctrl.Result{}, fmt.Errorf("failed to refresh DNSRecord resource: %v", err)
 		}
 		// update resource
-		message := fmt.Sprintf("Record has joined to the DNSZone: %s, Waiting for DNSConnector to pick up the zone: %s", dnsZone.Name, dnsZone.Spec.ConnectorName)
+		message := fmt.Sprintf("Record has joined to the DNSZone: %s", dnsZone.Name)
 		setDnsRecordCondition(dnsRecObj, metav1.ConditionTrue, monkalev1alpha1.ConditionReasonRecordReady, message)
 		if err := r.Status().Update(ctx, dnsRecObj); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to update status and condition: %v", err)
@@ -235,16 +247,19 @@ func (r *DNSZoneReconciler) createOrUpdateZoneCM(ctx context.Context, dnsZone *m
 
 	// Validate zone
 	if err := validateRecords(zone); err != nil {
+		// update status
 		if err := r.refreshDNSZoneResource(ctx, previousState); err != nil {
 			return fmt.Errorf("failed to refresh DNSZone resource: %v", err)
 		}
-		message := fmt.Sprintf("Zone validation failure. Preserving the previous version. See controller log. Error: %s", err)
+		message := fmt.Sprintf("Zone validation failure. Preserving the previous version. Error: %s", err)
+		dnsZone.Status.ValidationPassed = false
 		setDnsZoneCondition(dnsZone, metav1.ConditionFalse, monkalev1alpha1.ConditionReasonZoneUpdateErr, message)
 		if err := r.dnsZoneUpdateStatus(ctx, previousState, dnsZone); err != nil {
 			return fmt.Errorf("failed to update status and condition: %v", err)
 		}
-		log.Log.Error(err, "DNSZone instance. Reconciling ZoneCM.", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
-		return err
+		// if validation failed, no reason to reconcile again, it will create unneccessary reconcilation loops. user must fix it.
+		log.Log.Error(err, "DNSZone instance. Reconciling ZoneCM. Will not reconcile again.", "ConfigMap.metadata.name", cmConnObj.Name, "DNSZone.Name", dnsZone.Name)
+		return nil
 	}
 
 	// Construct the Zone ConfigMap
@@ -300,6 +315,7 @@ func (r *DNSZoneReconciler) createOrUpdateZoneCM(ctx context.Context, dnsZone *m
 	setDnsZoneCondition(dnsZone, metav1.ConditionTrue, monkalev1alpha1.ConditionReasonZonePending, message)
 	dnsZone.Status.RecordCount = bakedRecords.count
 	dnsZone.Status.ValidationPassed = true
+	dnsZone.Status.Checkpoint = true
 	dnsZone.Status.ZoneConfigmap = cmConnObj.Name
 	if err := r.dnsZoneUpdateStatus(ctx, previousState, dnsZone); err != nil {
 		return fmt.Errorf("failed to update status and condition: %v", err)

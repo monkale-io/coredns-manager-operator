@@ -114,9 +114,9 @@ spec:
                 - ipAddress
                 - recordType
                 type: object
-              refrashRate:
+              refreshRate:
                 default: 7200
-                description: refrashRate defines the time a secondary DNS server waits
+                description: refreshRate defines the time a secondary DNS server waits
                   before querying the primary DNS server to check for updates. If
                   the zone file has changed, secondary servers will refresh their
                   data. these records should be cached by DNS resolvers. The default
@@ -149,6 +149,12 @@ spec:
           status:
             description: DNSZoneStatus defines the observed state of DNSZone
             properties:
+              checkpoint:
+                description: checkpoint flag indicates whether the DNSZone was previously
+                  active. This flag is used to instruct the DNSConnector to preserve
+                  the old version of the DNSZone in case the update process encounters
+                  an issue.
+                type: boolean
               conditions:
                 description: conditions indidicate the status of a DNSZone.
                 items:
