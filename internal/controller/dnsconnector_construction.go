@@ -107,10 +107,10 @@ func generateCorefileCM(dnsConnector *monkalev1alpha1.DNSConnector, corednsConfC
 	return *newCorednsConfCM, nil
 }
 
-// getDesiredVolumes iterates over zone configmaps list and returns a map where the keys are volume names volume names based on the
-// domain name annotation, and values are names of the zone Config Maps
-func getDesiredVolumes(configMaps *corev1.ConfigMapList) (map[string]string, error) {
-	desiredVolumes := make(map[string]string)
+// getDesiredVolumes iterates over zone configmaps list and returns a map where the key is volume name based on the
+// domain name annotation, and values are two string: configMap.Name and configmap.Data zone key
+func getDesiredVolumes(configMaps *corev1.ConfigMapList) (map[string][2]string, error) {
+	desiredVolumes := make(map[string][2]string)
 	for _, configMap := range configMaps.Items {
 		domainName, ok := configMap.Annotations["DomainName"]
 		if !ok {
@@ -119,7 +119,16 @@ func getDesiredVolumes(configMaps *corev1.ConfigMapList) (map[string]string, err
 		volumeName := fmt.Sprintf("dnszone-%s", strings.ReplaceAll(domainName, ".", "-"))
 		volumeName = strings.TrimSuffix(volumeName, "-")
 
-		desiredVolumes[volumeName] = configMap.Name
+		if len(configMap.Data) != 1 {
+			return nil, fmt.Errorf("configMap %s should contain only one key", configMap.Name)
+		}
+		var cmZoneKey string
+		for k := range configMap.Data {
+			cmZoneKey = k
+			break
+		}
+
+		desiredVolumes[volumeName] = [2]string{configMap.Name, cmZoneKey}
 	}
 	return desiredVolumes, nil
 }
@@ -176,12 +185,9 @@ func setZoneFileConifgMaps(dnsConnector monkalev1alpha1.DNSConnector, corednsDep
 	}
 
 	// init volume and volumemounts
-	for volumeName, configMapName := range desiredVolumes {
-		// build volume name
-		domainName := strings.TrimPrefix(volumeName, "dnszone-")
-		domainName = strings.ReplaceAll(domainName, "-", ".")
-		domainName = strings.TrimSuffix(domainName, "-")
-
+	for volumeName, value := range desiredVolumes {
+		configMapName := value[0]
+		cmZoneKey := value[1]
 		volume := corev1.Volume{
 			Name: volumeName,
 			VolumeSource: corev1.VolumeSource{
@@ -191,8 +197,8 @@ func setZoneFileConifgMaps(dnsConnector monkalev1alpha1.DNSConnector, corednsDep
 					},
 					Items: []corev1.KeyToPath{
 						{
-							Key:  fmt.Sprintf("%s.zone", domainName),
-							Path: fmt.Sprintf("%s.zone", domainName),
+							Key:  cmZoneKey,
+							Path: cmZoneKey,
 						},
 					},
 				},
@@ -200,8 +206,8 @@ func setZoneFileConifgMaps(dnsConnector monkalev1alpha1.DNSConnector, corednsDep
 		}
 		volumeMount := corev1.VolumeMount{
 			Name:      volumeName,
-			MountPath: fmt.Sprintf("%s/%s.zone", dnsConnector.Spec.CorednsDeployment.ZoneFileMountDir, domainName),
-			SubPath:   fmt.Sprintf("%s.zone", domainName),
+			MountPath: fmt.Sprintf("%s/%s", dnsConnector.Spec.CorednsDeployment.ZoneFileMountDir, cmZoneKey),
+			SubPath:   cmZoneKey,
 			ReadOnly:  true,
 		}
 		// Check if the volume already exists
