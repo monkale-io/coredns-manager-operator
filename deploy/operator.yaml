@@ -1061,7 +1061,7 @@ spec:
         - --leader-elect
         command:
         - /manager
-        image: docker.io/monkale/coredns-manager-operator:v1.0.1
+        image: docker.io/monkale/coredns-manager-operator:v1.0.2
         livenessProbe:
           httpGet:
             path: /healthz
