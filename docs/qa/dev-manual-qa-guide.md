@@ -1,20 +1,25 @@
 # Manual Testing Guide for CoreDNS Operator
 
+**>IMPORTANT:** Follow this scenario precisely. All steps should function as intended, leading to results that match the provided example. If unexpected behavior occurs, or the outcome deviates from the example, **STOP**.
+Troubleshoot the issue using available resources or report it with details.
+
+**NOTE:** This guide shows examples of operator log output. However, the format might vary depending on the log level configuration.
+---
+
 ## Prerequisites
 * k3s version: => v1.29.5+k3s1 or KinD => 0.20.0
 * `kube-dns` service is exposed
 * `coredns-controller-manager` is running
 * It is recommended to switch the current context to the `kube-system`
-* It is recommended to run `dig` in a loop in the background
 
 ## Basic Functionality Test
 
 To install demo resources from config/samples use the following command.
 ```sh
-kubectl apply -k config/samples/
+$ kubectl apply -k config/samples/
 ```
 
-This will install the following component
+This will install the following components:
 * DNSConnector: Integrates with k3s's coredns.
 * DNSZone
   * market-example-zone: Normal zone.
@@ -73,7 +78,7 @@ Run apply and wait for about a minute for reconciliation to complete. Keep an ey
    }
    ```
  
-   * The setup should be ready and include provisioned zones.
+   * The setup should be ready and include `provisionedZones`.
   
 2. Inspect coredns deployment
    ```sh
@@ -104,21 +109,22 @@ Run apply and wait for about a minute for reconciliation to complete. Keep an ey
    no-connector-test-zone   test.com.            0              2024-06-04T12:57:41Z   0604125740       Pending
    market-example-zone      market.example.com   12             2024-06-04T12:57:40Z   0604130139       Active
    ```
-   * no-connector-test-zone - should be in the Pending state 
-   * market-example-zone - should be in the Ready state
+   * no-connector-test-zone - should be in the `Pending` state 
+   * market-example-zone - should be in the `Active` state
 
 2. Compare that the "no-connector-test-zone" has the same serial as the DNSConnector.
    ```sh
-   # Get connector state
-   $ kubectl get dnsconnector coredns -o jsonpath='{.status.provisionedZones}'
+   # Get connector status
+   $ kubectl get dnsconnector coredns -o jsonpath='{.status.provisionedZones}' | jq .
 
-   # Get dnszone state
-   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}'
+   # Get dnszone serial
+   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}' | jq 
    ```
 
 3. The DNSZone resource produces the zone configMap. If you attempt to delete it, the finalizer should prevent you.
    ```sh
    $ kubectl delete cm coredns-zone-market-example-zone
+   ^C
    ```
 
 ### Review DNSRecords
@@ -143,8 +149,8 @@ Run apply and wait for about a minute for reconciliation to complete. Keep an ey
 2. Inspect "record-no-zone-test"
    ```sh
    $ kubectl get dnsrecords record-no-zone-test -o jsonpath="{.status}" | jq .conditions[].message
+   "Record has been constructed. Awaiting for the dnszone controller to pick up the record"
    ```
-   The message should be `"Record has been constructed. Awaiting for the dnszone controller to pick up the record"`.
 
 3. Inspect the A record "www-a-market-example". Ensure that all Status fields are populated correctly.
    ```sh
@@ -159,23 +165,29 @@ Run apply and wait for about a minute for reconciliation to complete. Keep an ey
 
 ### Remove record test
 
-1. Delete the record and monitor the logs. The process should take a few seconds and complete without errors.
+1. Delete the record and monitor the logs. The process should take a few seconds and complete without errors in controller logs.
    ```sh 
    $ kubectl delete dnsrecords spf-txt-market-example
    ```
 
-2. Get dnszone resource and verify that the number of records is 11 and the DNSZone is still active.
+2. Get dnszone resource and verify that the number of records is 11 and the DNSZone is still `Active`.
+   ```sh
+   kubectl get DNSZones 
+   NAME                     DOMAIN NAME          RECORD COUNT   LAST CHANGE            CURRENT SERIAL   STATE
+   no-connector-test-zone   test.com.            0              2024-06-04T17:17:20Z   0604171720       Pending
+   market-example-zone      market.example.com   11             2024-06-04T17:17:20Z   0604172502       Active
+   ```
    
 3. Ensure that the DNSConnector and DNSZone have the same serial, as the DNSZone serial has been changed.
    ```sh
-   # Get connector state
-   $ kubectl get dnsconnector coredns -o jsonpath='{.status.provisionedZones}'
+   # Get connector status
+   $ kubectl get dnsconnector coredns -o jsonpath='{.status.provisionedZones}' | jq .
 
-   # Get dnszone state
-   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}'
+   # Get dnszone serial
+   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}' | jq
    ```
 
-### Remove zone
+### Remove a functional zone
 
 1. Remove the DNSZone "market-example-zone". Monitor the logs. The process should take a few seconds without any errors.
    ```sh
@@ -201,6 +213,11 @@ Run apply and wait for about a minute for reconciliation to complete. Keep an ey
    $ kubectl describe cm coredns
    ```
 
+### Remove an empty zone
+1. Should work 
+   ```sh
+    $ kubectl delete dnszones no-connector-test-zone
+    ```
 ### Remove DNSConnector
 
 1. Delete the resource, monitor the logs, and wait for reconciliation. Ensure there are no errors.
@@ -208,20 +225,74 @@ Run apply and wait for about a minute for reconciliation to complete. Keep an ey
    $ kubectl delete dnsconnector coredns
    ```
 
-2. Ensure that the original coredns configMap is up and running. 
+2. Ensure that coredns is up and running. 
+   ```sh
+   kubectl get deployments.apps coredns
+   ```
 
 3. Original coredns configMap has been restored
    ```sh
    $ kubectl describe cm coredns
    ``` 
 
+4. Ensure that no Zone Mounts in here
+   ```sh
+   kubectl describe deployments.apps coredns
+   ```
+
+### Remove active DNSConnector
+
+1. Restore the demo resources and wait to Reconcilation to complete.
+   ```sh
+   $ kubectl apply -k config/samples/
+   ```
+
+2. Remove connector. 
+   ```sh
+   $ kubectl delete dnsconnectors coredns
+   ```
+
+3. Dns records should become `Pending`
+   ```sh
+   $ kubectl get dnszone market-example-zone -o jsonpath='{.status}' | jq .
+   ```
+   ```json
+   {
+     "checkpoint": true,
+     "conditions": [
+       {
+         "lastTransitionTime": "2024-06-04T23:48:04Z",
+         "message": "DNSConnector has been removed",
+         "observedGeneration": 1,
+         "reason": "Pending",
+         "status": "False",
+         "type": "Ready"
+       }
+     ],
+     "currentZoneSerial": "0604232845",
+     "recordCount": 12,
+     "validationPassed": true,
+     "zoneConfigmap": "coredns-zone-market-example-zone"
+   }
+   ```
+
+4. Original coredns configMap has been restored
+   ```sh
+   $ kubectl describe cm coredns
+   ``` 
+
+5. In a few minutes coredns will reload the restored coredns cm. However the operator will not remove `Volume`, `VolumeMount` and `Mount` of zone files. You can remove it manually. 
+   ```sh
+   # remove zone volumes and volumeMounts
+   $ kubectl edit deployments.apps coredns
+   # ensure that coredns is healthy
+   $ kubectl describe deployments.apps coredns
+   ```
 ---
 
 ## Test Exceptions
 
 ### Restore the demo resources
-
-**IMPORTANT:** Errors should not disrupt or break the operator. Any crashes or unreachable errors should be treated as bugs.
 
 Restore the demo resources.
 
@@ -235,7 +306,7 @@ We will create a record that will fail due to a bad domain name.
 
 1. Get the current serial number of the DNSZone.
    ```sh
-   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}'
+   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}' | jq .
    ```
 
 2. Create the DNSRecord resource
@@ -249,13 +320,14 @@ We will create a record that will fail due to a bad domain name.
      namespace: kube-system
    spec:
      record:
-       name: "www.."
+       name: "test.."
        value: "192.0.2.1"
        type: "A"
      dnsZoneRef:
        name: "market-example-zone"
    EOF
    ```
+
 3. Check status.
    ```sh
    $ kubectl get dnsrecords bad-domain-record-test -o jsonpath='{.status}' | jq .
@@ -265,50 +337,112 @@ We will create a record that will fail due to a bad domain name.
      "conditions": [
        {
          "lastTransitionTime": "2024-06-04T14:04:18Z",
-         "message": "Record validation failure: error parsing records: dns: bad owner name: \"www..\" at line: 1:6",
+         "message": "Record validation failure: error parsing records: dns: bad owner name: \"test..\" at line: 1:6",
          "observedGeneration": 1,
          "reason": "Degraded",
          "status": "False",
          "type": "Ready"
        }
      ],
-     "generatedRecord": "www.. IN A 192.0.2.1"
+     "generatedRecord": "test.. IN A 192.0.2.1"
    }
    ```
 
 4. Controller log tries to reconcile.
    ```log
-   2024-06-02T18:39:26-05:00       ERROR   DNSRecord instance. Proccess Record Failure     {"DNSRecord.Name": "bad-domain-record-test", "DNSZone.Name": "market-example-zone", "error": "handle ARecord Error: record validation failure: error parsing records: dns: bad owner name: \"www..\" at line: 1:6"}
-   2024-06-02T18:39:26-05:00       ERROR   Reconciler error        {"controller": "dnsrecord", "controllerGroup": "monkale.monkale.io", "controllerKind": "DNSRecord", "DNSRecord": {"name":"bad-domain-record-test","namespace":"kube-system"}, "namespace": "kube-system", "name": "bad-domain-record-test", "reconcileID": "f537266d-46bf-491c-8a86-7f28f90a6834", "error": "handle ARecord Error: record validation failure: error parsing records: dns: bad owner name: \"www..\" at line: 1:6"}
+   2024-06-02T18:39:26-05:00       ERROR   DNSRecord instance. Proccess Record Failure     {"DNSRecord.Name": "bad-domain-record-test", "DNSZone.Name": "market-example-zone", "error": "handle ARecord Error: record validation failure: error parsing records: dns: bad owner name: \"test..\" at line: 1:6"}
+   2024-06-02T18:39:26-05:00       ERROR   Reconciler error        {"controller": "dnsrecord", "controllerGroup": "monkale.monkale.io", "controllerKind": "DNSRecord", "DNSRecord": {"name":"bad-domain-record-test","namespace":"kube-system"}, "namespace": "kube-system", "name": "bad-domain-record-test", "reconcileID": "f537266d-46bf-491c-8a86-7f28f90a6834", "error": "handle ARecord Error: record validation failure: error parsing records: dns: bad owner name: \"test..\" at line: 1:6"}
    ```
    
 5. Ensure that the DNSZone has not been affected by this change. The serial should remain the same.
    ```sh
-   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}'
+   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}' | jq
    ```
 
-6. Let's fix the record. The record should become "Active".
+### Test bad DNSRecord fix
+
+1. Let's fix the record. The record should become "Active".
    ```sh
    # Fix
-   $ kubectl patch DNSRecord bad-domain-record-test --type='merge' -p='{"spec":{"record": {"name": "www"}}}'
+   $ kubectl patch DNSRecord bad-domain-record-test --type='merge' -p='{"spec":{"record": {"name": "test"}}}'
 
    # Check status 
    $ kubectl get dnsrecords bad-domain-record-test -o jsonpath='{.status}' | jq .
 
    # Serial has Changed
-   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}'
+   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}' | jq
    ```
 
-7. Now you should be able to resolve this `www.market.example.com`
+2. Now you should be able to resolve this `test.market.example.com`
 
 
 ### Test bad DNSRecord modification
 
-Misconfigure the record, then repeat steps 3-7 from the previous section.
+1. Make sure you can resolve the test record
+   ```sh
+   $ dig +short @192.168.122.10 test.market.example.com
+   192.0.2.1
+   ```
 
-```sh
-$ kubectl patch DNSRecord bad-domain-record-test --type='merge' -p='{"spec":{"record": {"name": "www.."}}}'
-```
+2. Misconfigure the dnsrecord
+   ```sh
+   $ kubectl patch DNSRecord bad-domain-record-test --type='merge' -p='{"spec":{"record": {"name": "test.."}}}'
+   ```
+
+2. Check DNSRecord status and logs again.
+
+3. `dig test.market.example.com` should return `NXDOMAIN`
+
+### Test bad DNSRecord deletion
+
+1. Delete the record. 
+   ```sh
+   $ kubectl delete dnsrecords.monkale.monkale.io bad-domain-record-test
+   dnsrecord.monkale.monkale.io "bad-domain-record-test" deleted
+   ```
+
+### Test bad DNSZone creation
+
+To break the DNSZone, let's request NS Record type AAAA for the IPv4 NS.
+
+1. Create bad DNSZone
+   ```sh
+   $ cat << EOF | kubectl apply -f -
+   ---
+   apiVersion: monkale.monkale.io/v1alpha1
+   kind: DNSZone
+   metadata:
+     name: i-am-broken-zone
+     namespace: kube-system
+   spec:
+     connectorName: coredns
+     domain: "broken.com."
+     primaryNS:
+       recordType: "AAAA"
+       ipAddress: "10.120.100.11"
+     respPersonEmail: "admin@test.local"
+   EOF
+   ```
+
+2. Make sure that coredns and dnsconnector are ok
+   ```sh
+   $ kubectl get dnsconnector
+   NAME      LAST CHANGE            STATE    MESSAGE
+   coredns   2024-06-04T16:20:15Z   Active   CoreDNS Ready
+   $ kubectl get deployments.apps coredns 
+   NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+   coredns   1/1     1            1           4d
+   ```
+
+3. Ensure that DNSConnector does not contain this zone
+   ```sh
+   $ kubectl get dnsconnector coredns -o jsonpath='{.status.provisionedZones}' | jq .
+   ```
+
+4. Remove this zone and repeat step 2.
+   ```sh
+   $ kubectl delete dnszone i-am-broken-zone
+   ```  
 
 ### Test bad DNSZone modification
 
@@ -316,20 +450,19 @@ To break the DNSZone, let's patch primary NS IP to IPv5 :)
 
 1. Get the current serial number of the DNSZone.
    ```sh
-   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}'
+   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}' | jq
    ```
 
 2. Patch
    ```sh
-   k patch DNSzone market-example-zone --type='merge' -p='{"spec":{"primaryNS":{"ipAddress": "10.120.120.10.254"}}}'
+   $ kubectl patch DNSzone market-example-zone --type='merge' -p='{"spec":{"primaryNS":{"ipAddress": "10.120.120.10.254"}}}'
    ```
 
 3. Check status. 
    ```sh
-   kubectl get dnszones.monkale.monkale.io market-example-zone -o jsonpath='{.status}' | jq .
+   $ kubectl get DNSzone market-example-zone -o jsonpath='{.status}' | jq .
    ```
    ```json
-   kubectl get dnszones.monkale.monkale.io market-example-zone -o jsonpath='{.status}' | jq .
    {
      "conditions": [
        {
@@ -383,7 +516,7 @@ To break the DNSZone, let's patch primary NS IP to IPv5 :)
    $ kubectl patch DNSzone market-example-zone --type='merge' -p='{"spec":{"primaryNS":{"ipAddress": "10.120.120.254"}}}'
 
    # Serial has Changed
-   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}'
+   $ kubectl get dnszone market-example-zone -o jsonpath='{.status.currentZoneSerial}' | jq .
 
    # Connector is functional and has the same serial.
    $ kubectl get dnsconnector coredns -o jsonpath='{.status}' | jq .
