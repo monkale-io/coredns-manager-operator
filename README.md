@@ -149,7 +149,7 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
 
    Inspect the record
    ```sh
-   kubectl get dnsrecords -n kube-system 
+   $ kubectl get dnsrecords -n kube-system 
    NAME            RECORD NAME   RECORD TYPE   RECORD VALUE    ZONE REFERENCE      LAST CHANGE            STATE
    demo-a-record   *.ingress     A             10.100.100.10   demo-example-zone   2024-06-03T19:10:18Z   Ready
    ```
