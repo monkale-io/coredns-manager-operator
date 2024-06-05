@@ -121,6 +121,13 @@ The DNSZone resource also includes status fields that reflect the observed state
 
 * `checkpoint` (bool): Indicates whether the DNSZone was previously active. This flag is used to instruct the DNSConnector to preserve the old version of the DNSZone in case the update process encounters an issue.
 
+### States
+`conditions[].reason` represents DNSZone state.
+
+* `Active` - The DNSZone has passed the syntax validation check and has been picked up by the DNSConnector controller.
+* `UpdateErr` - An error occurred during the zone file update. In the `UpdateErr` state, the DNSConnector controller keeps the last known good DNS zone version, ensuring uninterrupted name resolution.
+* `Pending` - The DNSZone has been created and passed the syntax validation check. It is waiting to be picked up by the DNSConnector controller.
+  
 ### Status Example
 ```json
 {

@@ -109,6 +109,13 @@ The DNSRecord resource also includes status fields that reflect the observed sta
 * `validationPassed` (boolean): Displays whether the record passed the syntax validation check.
 * `generatedRecord` (string): Displays the generated DNS record.
 
+### States
+`conditions[].reason` represents DNSRecord state.
+
+* `Ready` - The DNSRecord has passed the syntax validation check and has been added the DNSZone' zonefile.
+* `Degraded` - The DNSRecord failed the syntax validation check. `Degraded` records are unresovable. 
+* `Pending` - The DNSRecord has been created and passed the syntax validation check. It is waiting to be picked up by the DNSZone controller.
+
 ### Example Status
 
 ```json

@@ -51,8 +51,6 @@ Example Resources
 
 ### Examples
 
-
-
 #### For most situations
  
 In most popular Kubernetes distributions, these settings will remain the same, so you can use the following template without modifications.
@@ -100,6 +98,14 @@ The DNSConnector resource also includes status fields that reflect the observed 
 * `conditions` (array): Indicates the status of the DNSConnector. Each condition includes:
 * `provisionedZones` (array): Displays DNSZones and their versions currently provisioned to CoreDNS.
 
+
+### States
+`conditions[].reason` represents DNSZone state.
+
+* `Active` - The DNSConnector and coredns are up-to-date with the latest changes. 
+* `Updating` - The DNSConnector is currently updating the CoreDNS deployment. If the DNSConnector gets stuck in the `Updating` state, it might indicate an issue during reconciliation. Check operator's logs for more information.
+* `UpdateErr` - DNSConnector failure. Describe the resource and check logs. Name resolution might be impacted.
+  
 ### Example Status
 
 ```json
