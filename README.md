@@ -43,7 +43,11 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
    Connection to 192.168.122.10 53 port [tcp/domain] succeeded!
    ```
 
-2. Install the operator. By default it will install in `kube-system` namespace. Modify the manifest if needed.
+2. Increase Coredns replicas(Optional)
+   
+   Zonefile updates can cause a short interruption in name resolution, typically lasting from <1 to 5 seconds. To minimize downtime during updates, consider increasing CoreDNS replicas to 2 or more.
+
+3. Install the operator. By default it will install in `kube-system` namespace. Modify the manifest if needed.
    ```sh
    $ kubectl apply -f https://raw.githubusercontent.com/monkale-io/coredns-manager-operator/main/deploy/operator.yaml
    ```
@@ -55,7 +59,7 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
    coredns-manager-operator-controller-manager   1/1     1            1           4m10s
    ```
 
-3. Create DNSConnector:
+4. Create DNSConnector:
    * The corednsCM should point to the CoreDNS ConfigMap, usually named `coredns` and located in the `kube-system` namespace.
    * The `corefileKey` points to the Corefile inside the ConfigMap, typically called `Corefile`.
    * The corednsDeployment refers to the CoreDNS deployment, which is generally named `coredns`. This could also be a DaemonSet or StatefulSet.
@@ -85,7 +89,7 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
    coredns   2024-06-03T18:51:44Z   Active   CoreDNS Ready
     ```
 
-4. Create `DNSZone`
+5. Create `DNSZone`
    Define the root of your domain.
 
    * Set your domain and set `connectorName` to point to the previously created DNSConnector resource - `coredns`.
@@ -116,7 +120,7 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
    demo-example-zone   demo.example.com   0              2024-06-03T18:57:59Z   0603185759       Active
    ```
 
-5. Create your first `DNSRecord`.
+6. Create your first `DNSRecord`.
 
    Let's create our first A record to point any hosts under `*.ingress.demo.example.com` to `10.100.100.10`. This will match all hosts such as `app1.ingress.demo.example.com`.
 
@@ -158,7 +162,7 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
      [Troubleshoot Guide - FQDNs vs Relative names](docs/dnsrecords.md#pay-attention-to-domain-names-and-fqdns)
 
 
-6. Try to resolve
+7. Try to resolve
    ```sh
    # try app1.ingress.market.example.com
    $ dig +short @192.168.122.10 app1.ingress.demo.example.com 
