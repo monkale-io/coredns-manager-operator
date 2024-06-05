@@ -91,6 +91,52 @@ spec:
     - "log"
 ```
 
+#### Unplugging the DNSConnector
+
+If you decide to stop using the coredns-manager-operator, ensure proper unplugging of the DNSConnector to avoid issues.
+
+1. Remove connector. 
+   ```sh
+   $ kubectl delete dnsconnectors coredns -n kube-system
+   ```
+
+3. Dns records should become `Pending`
+   ```sh
+   $ kubectl get dnszone market-example-zone -n kube-system -o jsonpath='{.status}' | jq .
+   ```
+   ```json
+   {
+     "checkpoint": true,
+     "conditions": [
+       {
+         "lastTransitionTime": "2024-06-04T23:48:04Z",
+         "message": "DNSConnector has been removed",
+         "observedGeneration": 1,
+         "reason": "Pending",
+         "status": "False",
+         "type": "Ready"
+       }
+     ],
+     "currentZoneSerial": "0604232845",
+     "recordCount": 12,
+     "validationPassed": true,
+     "zoneConfigmap": "coredns-zone-market-example-zone"
+   }
+   ```
+
+4. The original coredns configMap has been restored.
+   ```sh
+   $ kubectl describe cm coredns
+   ``` 
+
+5. Coredns will automatically reload the restored CoreDNS configuration in a few minutes. However, the operator will not remove the `Volume`, `VolumeMoun`t, and `Mount` resources for zone files. You will need to remove these resources manually. (This is expected to be fixed in future versions.)
+   ```sh
+   # remove zone volumes and volumeMounts
+   $ kubectl edit deployments.apps coredns
+   # ensure that coredns is healthy
+   $ kubectl describe deployments.apps coredns
+   ```
+
 ## Status
 The DNSConnector resource also includes status fields that reflect the observed state of the resource.
 
