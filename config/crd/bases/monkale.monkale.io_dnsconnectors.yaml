@@ -94,11 +94,11 @@ spec:
                   type: string
                 type: array
               waitForUpdateTimeout:
-                default: 300
+                default: 120
                 description: waitForUpdateTimeout specifies how long the DNSConnector
                   for coredns to complete update. if coredns deployment haven't complete
                   the update, the controller will perform rollback. The default value
-                  is 300 seconds (5 min)
+                  is 120 seconds (2 min)
                 type: integer
             required:
             - corednsCM
