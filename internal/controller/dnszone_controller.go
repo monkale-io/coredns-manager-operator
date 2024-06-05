@@ -312,7 +312,7 @@ func (r *DNSZoneReconciler) createOrUpdateZoneCM(ctx context.Context, dnsZone *m
 	}
 
 	message := fmt.Sprintf("Zone ConfigMap has been created: %s", cmConnObj.Name)
-	setDnsZoneCondition(dnsZone, metav1.ConditionTrue, monkalev1alpha1.ConditionReasonZonePending, message)
+	setDnsZoneCondition(dnsZone, metav1.ConditionFalse, monkalev1alpha1.ConditionReasonZonePending, message)
 	dnsZone.Status.RecordCount = bakedRecords.count
 	dnsZone.Status.ValidationPassed = true
 	dnsZone.Status.Checkpoint = true

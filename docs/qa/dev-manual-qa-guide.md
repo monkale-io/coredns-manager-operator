@@ -4,6 +4,7 @@
 Troubleshoot the issue using available resources or report it with details.
 
 **NOTE:** This guide shows examples of operator log output. However, the format might vary depending on the log level configuration.
+
 ---
 
 ## Prerequisites
@@ -82,7 +83,7 @@ Run apply and wait for about a minute for reconciliation to complete. Keep an ey
   
 2. Inspect coredns deployment
    ```sh
-   $ kubectl describe deployments coredns
+   $ kubectl describe deployments coredns | grep Mount -A4
    ```
    Ensure that it includes `market.example.com` mount.
 
@@ -128,7 +129,7 @@ Run apply and wait for about a minute for reconciliation to complete. Keep an ey
    ```
 
 ### Review DNSRecords
-1. Get DNSRecord resources.  The "record-no-zone-test" should be in the `Pending` state, while the rest should be Ready.
+1. Get DNSRecord resources.  The "record-no-zone-test" should be in the `Pending` state, while the rest should be `Ready`.
    ```sh
    $ kubectl get dnsrecords
    NAME                              RECORD NAME                RECORD TYPE   RECORD VALUE                                                                    ZONE REFERENCE             LAST CHANGE            STATE
@@ -146,6 +147,7 @@ Run apply and wait for about a minute for reconciliation to complete. Keep an ey
    www-a-market-example              www                        A             10.100.100.10                                                                   market-example-zone        2024-06-04T12:57:40Z   Ready
    app1-a-fqdn-test-market-example   app1.market.example.com.   A             10.100.100.10                                                                   market-example-zone        2024-06-04T13:01:39Z   Ready
    ```
+
 2. Inspect "record-no-zone-test"
    ```sh
    $ kubectl get dnsrecords record-no-zone-test -o jsonpath="{.status}" | jq .conditions[].message
@@ -311,7 +313,7 @@ We will create a record that will fail due to a bad domain name.
 
 2. Create the DNSRecord resource
    ```sh
-   cat << EOF | kubectl apply -f -
+   $ cat << EOF | kubectl apply -f -
    ---
    apiVersion: monkale.monkale.io/v1alpha1
    kind: DNSRecord
@@ -522,6 +524,68 @@ To break the DNSZone, let's patch primary NS IP to IPv5 :)
    $ kubectl get dnsconnector coredns -o jsonpath='{.status}' | jq .
    ```
 
+### Test DNSZone domain change
+We will test whether it is possible to change the zone domain name. Additionally, we will test if it is possible to have a long domain name with special characters.
+
+1. Patch
+   ```sh
+   $ kubectl patch DNSzone market-example-zone --type='merge' -p='{"spec":{"domain":"extremely-huge-example.market-place.com."}}'
+   ```
+
+2. Watch coredns connector status. Should be Active with the newly provisioned domain name.
+   ```sh
+   $ kubectl get dnsconnector coredns -o jsonpath='{.status}' | jq .
+   ```
+   ```json
+   {
+     "conditions": [
+       {
+         "lastTransitionTime": "2024-06-05T14:37:49Z",
+         "message": "CoreDNS Ready",
+         "observedGeneration": 1,
+         "reason": "Active",
+         "status": "True",
+         "type": "Ready"
+       }
+     ],
+     "provisionedZones": [
+       {
+         "domain": "extremely-huge-example.market-place.com.",
+         "name": "market-example-zone",
+         "serialNumber": "0605093713"
+       }
+     ]
+   }
+   ```
+
+3. The DNSZone should be Active too
+    ```sh
+    $ kubectl get dnszones
+    NAME                     DOMAIN NAME                                RECORD COUNT   LAST CHANGE            CURRENT SERIAL   STATE
+    market-example-zone      extremely-huge-example.market-place.com.   12             2024-06-05T14:37:22Z   0605093713       Active
+    no-connector-test-zone   test.com.                                  0              2024-06-05T14:35:02Z   0605093502       Pending
+    ```
+
+4. Ensure that the zone mount has been updated
+   ```sh
+   $ kubectl describe deployments coredns | grep Mount -A4
+    Mounts:
+      /etc/coredns from config-volume (ro)
+      /etc/coredns/custom from custom-config-volume (ro)
+      /opt/coredns/extremely-huge-example.market-place.com.zone from dnszone-extremely-huge-example-market-place-com (ro,path="extremely-huge-example.market-place.com.zone")
+   ```
+
+5. Try to resolve
+   ```sh
+   $ dig +short @192.168.122.10 www.extremely-huge-example.market-place.com.
+   10.100.100.10
+   ```
+
+6. Restore the demo resources.
+   ```sh
+   $ kubectl apply -k config/samples/
+   ```
+
 ### Test bad DNSConnector
 
 To break the DNSConnector, we can enable a not supported CoreDNS plugin. If the DNSConnector degrades, the name resolution may still be functional because CoreDNS is deployed as a Deployment.
@@ -593,4 +657,3 @@ To break the DNSConnector, we can enable a not supported CoreDNS plugin. If the 
      - log
    EOF
    ```
-
