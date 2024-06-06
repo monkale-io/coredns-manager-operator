@@ -1,5 +1,7 @@
 # Coredns-manager-operator
-The CoreDNS Manager Operator enables Kubernetes to function as a standalone DNS server, ideal for offline or home lab environments. It eliminates the need for additional DNS software like named or dnsmasq and supports a GitOps approach for managing DNS configurations.
+The CoreDNS Manager Operator is designed for offline or home lab setups, eliminating the need for additional DNS software like dnsmasq or named and leveraging a GitOps approach for managing DNS configurations.
+
+In many on-premises environments, managing DNS records can be complex and often requires separate DNS servers. With the CoreDNS Manager Operator, you can handle internal DNS directly within your Kubernetes cluster, simplifying the process and reducing infrastructure needs. This operator integrates with Kubernetes, making it easy to manage DNS records efficiently using a GitOps workflow.
 
 ## Features
 * Manage DNS records within a Kubernetes cluster using `DNSRecord` and `DNSZone` CRDs.
