@@ -84,7 +84,7 @@ If you have an idea for an enhancement or a new feature, please open an issue an
 The `develop` branch is used for ongoing development and should always be in sync with the `main` branch. All new features and bug fixes should be developed in feature branches created from `develop`, and pull requests should be submitted to the `develop` branch.
 
 1. Fork the repository and create your branch from `develop`.
-2. Ensure your code follows the project's coding standards and passes all tests.
+2. Ensure your code follows the project's coding standards.
 3. If you’ve added or changed functionality, update the documentation accordingly.
 4. Review and follow the [manual QA guide](docs/qa/dev-manual-qa-guide.md) to ensure all known use cases are checked before committing.
 5. Commit your changes with a descriptive commit message.
@@ -100,7 +100,8 @@ The repository owner will:
 1. Review and test the changes.
 2. Merge the changes into the `main` branch after successful review and testing.
 3. Build the image and push it to Docker Hub.
-4. Set up the tag.
+4. Update CHANGELOG.md
+5. Set up the tag.
 
 ## Development Setup
 
