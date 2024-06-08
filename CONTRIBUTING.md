@@ -14,7 +14,6 @@ Please note we have a code of conduct, please follow it in all your interactions
 4. [Style Guides](#style-guides)
     - [Git Commit Messages](#git-commit-messages)
     - [Go Code Style](#go-code-style)
-5. [Additional Resources](#additional-resources)
 
 ## Code of Conduct
 
@@ -43,10 +42,9 @@ Provide a clear and concise description of the bug.
 
 Please provide detailed steps to reproduce the issue:
 
-1. Go to '...'
-2. Click on '...'
-3. Scroll down to '...'
-4. See error
+1. Execute '...'
+2. Apply '...'
+3. See error
 
 ## Expected Behavior
 
@@ -88,14 +86,14 @@ The `develop` branch is used for ongoing development and should always be in syn
 1. Fork the repository and create your branch from `develop`.
 2. Ensure your code follows the project's coding standards and passes all tests.
 3. If you’ve added or changed functionality, update the documentation accordingly.
-4. Review and follow the [manual QA guide](https://github.com/monkale-io/coredns-manager-operator/blob/main/docs/qa/dev-manual-qa-guide.md) to ensure all known use cases are checked before committing.
+4. Review and follow the [manual QA guide](docs/qa/dev-manual-qa-guide.md) to ensure all known use cases are checked before committing.
 5. Commit your changes with a descriptive commit message.
 6. Push your branch to your fork and open a Pull Request to the `develop` branch of the repository.
 
 Please ensure your pull request adheres to the following guidelines:
 - Provide a clear description of what your pull request does.
 - Include the issue number if your pull request addresses a specific issue.
-- Ensure all tests pass and no new warnings are introduced.
+- Follow the [manual QA guide](docs/qa/dev-manual-qa-guide.md)
 - Review the changes to make sure they are well-tested and documented.
 
 The repository owner will:
@@ -106,7 +104,7 @@ The repository owner will:
 
 ## Development Setup
 
-To set up the project for development, please refer to the [development guide](https://github.com/monkale-io/coredns-manager-operator/blob/main/docs/develop.md).
+To set up the project for development, please refer to the [development guide](docs/develop.md).
 
 ## Style Guides
 
@@ -119,7 +117,6 @@ To set up the project for development, please refer to the [development guide](h
 
 ### Go Code Style
 
-- Follow the standard Go formatting conventions (`go fmt`).
 - Write clear, concise comments for exported functions and types.
 - Use descriptive names for variables and functions.
 
