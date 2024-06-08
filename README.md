@@ -183,6 +183,14 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
 * [Email - monkaleio@gmail.com](mailto:monkaleio@gmail.com)
 * [Reddit - r/monkaleio](https://www.reddit.com/r/monkaleio/s/d69geCqifS)
 
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to this project.
+
+## Changelog
+
+All notable changes to this project will be documented in [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 Copyright 2024 monkale.io.
