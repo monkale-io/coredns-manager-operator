@@ -178,6 +178,10 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
 
 [Troubleshoot guide](docs/troubleshoot.md)
 
+## Articles
+
+* [Medium: Managing Internal DNS in Air-Gapped k3s Clusters with Monkale CoreDNS-Manager-Operator](https://medium.com/@nicholas5421/managing-internal-dns-in-air-gapped-k3s-clusters-with-monkale-coredns-manager-operator-fa1c9136cc2c)
+
 ## Contact
 
 * [Email - monkaleio@gmail.com](mailto:monkaleio@gmail.com)

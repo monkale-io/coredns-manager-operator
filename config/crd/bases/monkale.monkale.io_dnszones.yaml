@@ -94,7 +94,7 @@ spec:
                       for this zone. The default value is "ns1".
                     maxLength: 253
                     minLength: 1
-                    pattern: ^[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?)*$
+                    pattern: ^[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?)*$
                     type: string
                   ipAddress:
                     description: ipAddress defines IP address to the dns server where

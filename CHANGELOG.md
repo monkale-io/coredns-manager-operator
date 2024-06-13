@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2024-06-13
+### Fixed
+- 
+- Bug Fix: Resolve validation of the spec.primaryNS.hostname allowing the creation of more complex hostnames required for certain DNS setups.
+  https://github.com/monkale-io/coredns-manager-operator/issues/7
+  
 ## [1.0.2] - 2024-06-05
 ### Fixed
 - Bug Fix: Resolve Zone File Mount Issues with Dashed Domain Names
