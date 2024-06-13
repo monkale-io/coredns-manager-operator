@@ -586,6 +586,25 @@ We will test whether it is possible to change the zone domain name. Additionally
    $ kubectl apply -k config/samples/
    ```
 
+### Test DNSZone long ns1 hostname
+We will test whether it is possible to use long ns hostname. 
+
+1. Patch
+   ```sh
+   $ kubectl patch DNSzone market-example-zone --type='merge' -p='{"spec":{"primaryNS":{"hostname": "master-0.k3s.test"}}}'
+   ```
+2. Should be active
+   ```sh
+   $ kubectl get dnszones market-example-zone 
+   NAME                  DOMAIN NAME          RECORD COUNT   LAST CHANGE            CURRENT SERIAL   STATE
+   market-example-zone   market.example.com   12             2024-06-13T18:27:37Z   0613182727       Active
+   ```
+3. Check SOA
+   ```sh
+   $ kubectl describe cm coredns-zone-market-example-zone | grep SOA
+   @ IN SOA master-0.k3s.test.market.example.com. admin@example.com. (
+   ```
+
 ### Test bad DNSConnector
 
 To break the DNSConnector, we can enable a not supported CoreDNS plugin. If the DNSConnector degrades, the name resolution may still be functional because CoreDNS is deployed as a Deployment.
