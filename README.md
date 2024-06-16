@@ -11,7 +11,7 @@ In many on-premises environments, managing DNS records can be complex and often 
 * Good choice for home labs and disconnected environments, eliminating the need for additional DNS software and enables GitOps approach for managing DNS configurations.
 
 ## Limitations
-* Compatibility: Currently tested with k3s(v1.29.5+k3s1) and KinD(0.20.0). It is expected to work with other Kubernetes distributions and will be tested soon, with Talos being next in line.
+* Compatibility: Currently tested with k3s(v1.29.5+k3s1), talos(kubernetes v1.30.1) and KinD(0.20.0). It is expected to work with other Kubernetes distributions.
 
 * CoreDNS Exposure: The project is designed to manage CoreDNS zones, but it does not expose CoreDNS to the network by default. Administrators must handle exposure themselves using methods such as LoadBalancer services, iptables, NodePorts, HAProxy, IngressRoutes or even kubectl port-forwarding.
 
@@ -181,6 +181,7 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
 ## Articles
 
 * [Medium: Managing Internal DNS in Air-Gapped k3s Clusters with Monkale CoreDNS-Manager-Operator](https://medium.com/@nicholas5421/managing-internal-dns-in-air-gapped-k3s-clusters-with-monkale-coredns-manager-operator-fa1c9136cc2c)
+* [Medium: Installing Monkale CoreDNS Manager Operator on Single-Node Talos](https://medium.com/@nicholas5421/installing-monkale-coredns-manager-operator-on-single-node-talos-16f8be900585)
 
 ## Contact
 
