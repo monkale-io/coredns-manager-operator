@@ -13,7 +13,7 @@ In many on-premises environments, managing DNS records can be complex and often 
 ## Limitations
 * Compatibility: Currently tested with k3s(v1.29.5+k3s1), talos(kubernetes v1.30.1) and KinD(0.20.0). It is expected to work with other Kubernetes distributions.
 
-* CoreDNS Exposure: The project is designed to manage CoreDNS zones, but it does not expose CoreDNS to the network by default. Administrators must handle exposure themselves using methods such as LoadBalancer services, iptables, NodePorts, HAProxy, IngressRoutes or even kubectl port-forwarding.
+* CoreDNS Exposure: The project is designed to manage CoreDNS zones, but it does not expose CoreDNS to the network by default. Administrators must handle exposure themselves using methods such as LoadBalancer services, iptables, NodePorts, HAProxy, IngressRoutes or even kubectl port-forwarding. Visit this guide ([docs/coredns_exposure.md](docs/coredns_exposure.md)) to see common methods.
 
 ## Project Resources
 * DNSRecord: Represents individual DNS records such as A, AAAA, CNAME, etc.
@@ -34,7 +34,8 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
 
 **> IMPORTANT:** Make sure to deploy the coredns-manager-operator and its resources in the same namespace as CoreDNS, usually `kube-system`. Always include the `--namespace kube-system` to all your queries or just switch the context.
 
-1. Expose CoreDNS to your network: Ensure CoreDNS is accessible on port 53 (TCP/UDP). The method depends on your deployment.
+1. Expose CoreDNS to your network: Ensure CoreDNS is accessible on port 53 (TCP/UDP). The method depends on your deployment. Visit this guide ([docs/coredns_exposure.md](docs/coredns_exposure.md)) to see common methods.
+
    ```sh
    # in this example 192.168.122.10 is kubernetes cluster.
    # udp
