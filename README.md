@@ -1,3 +1,5 @@
+**This project is no longer maintained. Open for adoption!**
+
 # Coredns-manager-operator
 The CoreDNS Manager Operator is designed for offline or home lab setups, eliminating the need for additional DNS software like dnsmasq or named and leveraging a GitOps approach for managing DNS configurations.
 
@@ -187,7 +189,6 @@ During this guide you we will briefly learn coredns-manager-operator' resources 
 ## Contact
 
 * [Email - monkaleio@gmail.com](mailto:monkaleio@gmail.com)
-* [Reddit - r/monkaleio](https://www.reddit.com/r/monkaleio/s/d69geCqifS)
 
 ## Contributing
 
